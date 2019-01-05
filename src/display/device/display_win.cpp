@@ -141,13 +141,13 @@ void WinWindow::SetupPixelFormat(HDC hDC)
 
     pixelFormat = ChoosePixelFormat(hDC, &pfd);
     if (pixelFormat == 0) {
-        MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error", MB_ICONERROR | MB_OK);
+        MessageBoxA(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error", MB_ICONERROR | MB_OK);
         CheckWGLDieOnError();
         exit(1);
     }
 
     if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
-        MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error", MB_ICONERROR | MB_OK);
+        MessageBoxA(WindowFromDC(hDC), "SetPixelFormat failed.", "Error", MB_ICONERROR | MB_OK);
         CheckWGLDieOnError();
         exit(1);
     }
@@ -258,7 +258,7 @@ WinWindow::~WinWindow()
 
 void WinWindow::RegisterThisClass(HMODULE hCurrentInst)
 {
-    WNDCLASS wndClass;
+    WNDCLASSA wndClass;
     wndClass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc = WinWindow::WndProc;
     wndClass.cbClsExtra = 0;
@@ -269,7 +269,7 @@ void WinWindow::RegisterThisClass(HMODULE hCurrentInst)
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = NULL;
     wndClass.lpszClassName = className;
-    if(!RegisterClass(&wndClass)) {
+    if(!RegisterClassA(&wndClass)) {
         std::cerr << "RegisterClass() failed" << std::endl;
         CheckWGLDieOnError();
     }
