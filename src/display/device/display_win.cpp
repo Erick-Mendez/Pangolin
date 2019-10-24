@@ -57,7 +57,7 @@ namespace pangolin
 const char *className = "Pangolin";
 
 extern __thread PangolinGl* context;
-  
+
 ////////////////////////////////////////////////////////////////////////
 // Utils
 ////////////////////////////////////////////////////////////////////////
@@ -222,7 +222,7 @@ WinWindow::WinWindow(
     }
     RegisterThisClass(hCurrentInst);
 
-    HWND thishwnd = CreateWindow(
+    HWND thishwnd = CreateWindowA(
         className, window_title.c_str(),
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         0, 0, width, height,
@@ -583,14 +583,14 @@ PANGOLIN_REGISTER_FACTORY(WinWindow)
 {
   struct WinWindowFactory : public FactoryInterface<WindowInterface> {
     std::unique_ptr<WindowInterface> Open(const Uri& uri) override {
-          
+
       const std::string window_title = uri.Get<std::string>("window_title", "window");
       const int w = uri.Get<int>("w", 640);
       const int h = uri.Get<int>("h", 480);
       return std::unique_ptr<WindowInterface>(CreateWinWindowAndBind(window_title, w, h));
     }
   };
-  
+
   auto factory = std::make_shared<WinWindowFactory>();
   FactoryRegistry<WindowInterface>::I().RegisterFactory(factory, 10, "winapi");
   FactoryRegistry<WindowInterface>::I().RegisterFactory(factory, 100,  "default");
