@@ -34,6 +34,7 @@ namespace pangolin
 constexpr int META_FLAG_NONE      = 0x0000;
 constexpr int META_FLAG_TOGGLE    = 0x0001;
 constexpr int META_FLAG_READONLY  = 0x0002;
+constexpr int META_FLAG_TITLE     = 0x0004;
 
 struct VarMeta
 {

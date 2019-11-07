@@ -133,6 +133,7 @@ struct PANGOLIN_EXPORT TextInput : public Widget<std::string>
     GlText gltext;
     GLfloat raster[2];
     bool can_edit;
+    bool is_title;
     bool do_edit;
     int sel[2];
 };

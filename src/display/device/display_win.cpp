@@ -222,7 +222,7 @@ WinWindow::WinWindow(
     }
     RegisterThisClass(hCurrentInst);
 
-    HWND thishwnd = CreateWindow(
+    HWND thishwnd = CreateWindowA(
         className, window_title.c_str(),
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         0, 0, width, height,

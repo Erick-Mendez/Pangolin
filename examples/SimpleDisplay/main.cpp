@@ -33,13 +33,13 @@ void SampleMethod()
 
 
 int main(/*int argc, char* argv[]*/)
-{  
+{
   // Load configuration data
   pangolin::ParseVarsFile("app.cfg");
 
   // Create OpenGL window in single line
   pangolin::CreateWindowAndBind("Main",640,480);
-  
+
   // 3D Mouse handler requires depth testing to be enabled
   glEnable(GL_DEPTH_TEST);
 
@@ -69,8 +69,10 @@ int main(/*int argc, char* argv[]*/)
   pangolin::Var<int> an_int("ui.An_Int",2,0,5);
   pangolin::Var<double> a_double_log("ui.Log_scale var",3,1,1E4, true);
   pangolin::Var<bool> a_checkbox("ui.A_Checkbox",false,true);
-  pangolin::Var<int> an_int_no_input("ui.An_Int_No_Input",2);
-  pangolin::Var<CustomType> any_type("ui.Some_Type", CustomType(0,1.2f,"Hello") );
+  pangolin::Var<int> an_int_no_input("ui.An_Int_No_Input", 2);
+  pangolin::Var<CustomType> any_type("ui.Some_Type", CustomType(0, 1.2f, "Hello"));
+  pangolin::Var<std::string> a_string("ui.This is a title", "", pangolin::META_FLAG_TITLE);
+  pangolin::Var<std::string> a_string2("ui.This is readonly", "", pangolin::META_FLAG_READONLY);
 
   pangolin::Var<bool> save_window("ui.Save_Window",false,false);
   pangolin::Var<bool> save_cube("ui.Save_Cube",false,false);
@@ -90,7 +92,7 @@ int main(/*int argc, char* argv[]*/)
   while( !pangolin::ShouldQuit() )
   {
     // Clear entire screen
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if( pangolin::Pushed(a_button) )
       std::cout << "You Pushed a button!" << std::endl;
@@ -110,7 +112,7 @@ int main(/*int argc, char* argv[]*/)
 
     if( pangolin::Pushed(save_cube) )
         d_cam.SaveOnRender("cube");
-    
+
     if( pangolin::Pushed(record_cube) )
         pangolin::DisplayBase().RecordOnRender("ffmpeg:[fps=50,bps=8388608,unique_filename]//screencap.avi");
 
