@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
+<!-- ROS Catkin package.xml file -->
 <package format="2">
   <name>pangolin</name>
-  <version>0.5.0</version>
+  <version>0.7.0</version>
   <description>pangolin</description>
   <maintainer email="stevenlovegrove@gmail.com">Steven Lovegrove</maintainer>
   <author     email="stevenlovegrove@gmail.com">Steven Lovegrove</author>
@@ -9,7 +10,7 @@
   <buildtool_depend>cmake</buildtool_depend>
   <depend>libglew-dev</depend>
   <depend>cmake</depend>
-  <depend>python</depend>
+  <depend>python3-dev</depend>
   <export>
     <build_type>cmake</build_type>
   </export>

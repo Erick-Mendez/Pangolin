@@ -4,7 +4,11 @@
  *                     Imperial College London
  **/
 
-#include <pangolin/pangolin.h>
+#include <pangolin/display/display.h>
+#include <pangolin/display/view.h>
+#include <pangolin/video/video_input.h>
+#include <pangolin/gl/gl.h>
+
 
 void SetGlFormat(GLint& glformat, GLenum& gltype, const pangolin::PixelFormat& fmt)
 {
@@ -70,11 +74,10 @@ void VideoSample(const std::string uri)
 int main( int argc, char* argv[] )
 {
     std::string uris[] = {
-        "dc1394:[fps=30,dma=10,size=640x480,iso=400]//0",
         "convert:[fmt=RGB24]//v4l:///dev/video0",
         "convert:[fmt=RGB24]//v4l:///dev/video1",
+        "dc1394:[fps=30,dma=10,size=640x480,iso=400]//0",
         "openni:[img1=rgb]//",
-        "pleora:[sn=00000215,size=640x480,pos=64x64]//",
         "test:[size=160x120,n=1,fmt=RGB24]//"
         ""
     };
@@ -103,7 +106,7 @@ int main( int argc, char* argv[] )
                 std::cout << "Trying: " << uris[i] << std::endl;
                 VideoSample(uris[i]);
                 return 0;
-            }catch(const pangolin::VideoException&) { }
+            }catch(const std::exception&) { }
         }
     }
 
