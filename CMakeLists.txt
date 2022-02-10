@@ -81,6 +81,9 @@ endif()
 ## Add all pangolin components
 
 file(GLOB components_cmake "${CMAKE_CURRENT_LIST_DIR}/components/*/CMakeLists.txt")
+if (NOT BUILD_EXAMPLES)
+    list(REMOVE_ITEM components_cmake "${CMAKE_CURRENT_LIST_DIR}/components/pango_python/CMakeLists.txt")
+endif()
 set(component_list "")
 foreach(component_cmake ${components_cmake})
     get_filename_component(component_dir ${component_cmake} DIRECTORY)
