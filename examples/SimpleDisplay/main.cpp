@@ -48,10 +48,7 @@ int main(/*int argc, char* argv[]*/)
   pangolin::Var<bool> a_checkbox("ui.A_Checkbox",false,true);
   pangolin::Var<int> an_int_no_input("ui.An_Int_No_Input",2);
   pangolin::Var<std::string> a_string("ui.A_String", "Edit ME!");
-
-  pangolin::Var<CustomType> any_type("ui.Some_Type", CustomType(0, 1.2f, "Hello"));
-  pangolin::Var<std::string> a_string("ui.This is a title", "", pangolin::META_FLAG_TITLE);
-  pangolin::Var<std::string> a_string2("ui.This is readonly", "", pangolin::META_FLAG_READONLY);
+  pangolin::Var<std::string> a_string2("ui.This is a title", "", pangolin::META_FLAG_TITLE);
 
   // std::function objects can be used for Var's too. These work great with C++11 closures.
   pangolin::Var<std::function<void(void)>> save_window("ui.Save_Window", [](){

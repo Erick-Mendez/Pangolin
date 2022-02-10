@@ -4,3 +4,6 @@ build*
 _builds
 _logs
 .vscode
+.idea
+cmake-build-debug
+cmake-build-release

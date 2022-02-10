@@ -147,6 +147,7 @@ struct PANGOLIN_EXPORT TextInput : public Widget<std::string>
     GLfloat horizontal_margin = 2.f;
     int input_width;
     int edit_visible_part[2] = {0,1};
+    GLfloat raster[2];
 };
 
 

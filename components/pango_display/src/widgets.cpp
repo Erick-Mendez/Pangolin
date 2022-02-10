@@ -581,9 +581,11 @@ void Slider::Render()
 
 
 TextInput::TextInput(std::string title, const std::shared_ptr<VarValueGeneric> &tv)
-    : Widget<std::string>(title+":", tv), can_edit(!(tv->Meta().flags & META_FLAG_READONLY)), is_title((tv->Meta().flags & META_FLAG_TITLE)), do_edit(false)
+    : Widget<std::string>(title+":", tv), can_edit(!(tv->Meta().flags & META_FLAG_READONLY) && !(tv->Meta().flags & META_FLAG_TITLE)), is_title((tv->Meta().flags & META_FLAG_TITLE)), do_edit(false)
 {
-    top = 1.0; bottom = Attach::Pix(-2 * tab_h());
+    top = 1.0;
+    if (is_title) bottom = Attach::Pix(-tab_h());
+    else bottom = Attach::Pix(-2 * tab_h());
     left = 0.0; right = 1.0;
     hlock = LockLeft;
     vlock = LockBottom;
@@ -730,19 +732,17 @@ void TextInput::MouseMotion(View&, int x, int /*y*/, int /*mouse_state*/)
 
 void TextInput::ResizeChildren()
 {
-//    if (is_title)
-//    {
-//        raster[0] = floor(v.l + (v.w - gltext.Width()) / 2.0f);
-//        raster[1] = floor(v.b + (v.h - gltext.Height()) / 2.0f);
-//    }
-//    else
-//    {
-        vertical_margin = (v.h-2.f*gltext.Height()) / 4.0f;
-        input_width = v.w - 2 * horizontal_margin;
-        int max_possible_chars = floor(input_width / x_width());
-        edit_visible_part[1] = max_possible_chars;
-        CalcVisibleEditPart();
-//    }
+    if(is_title)
+    {
+        raster[0] = floor(v.l + (v.w-gltext.Width())/2.0f);
+        raster[1] = floor(v.b + (v.h-gltext.Height())/2.0f);
+    }
+
+    vertical_margin = (v.h-2.f*gltext.Height()) / 4.0f;
+    input_width = v.w - 2 * horizontal_margin;
+    int max_possible_chars = floor(input_width / x_width());
+    edit_visible_part[1] = max_possible_chars;
+    CalcVisibleEditPart();
 }
 
 void TextInput::CalcVisibleEditPart()
@@ -760,44 +760,48 @@ void TextInput::CalcVisibleEditPart()
 
 void TextInput::Render()
 {
-    if(!do_edit) edit = var->Get();
-
-    Viewport input_v(v.l,v.b,v.w,v.h / 2);
-    
-    glColor4fv(colour_fg);
-
     if (is_title)
     {
-        glColor4f(0.8, 0.8, 0.8, 1.0);
-        glRect(input_v);
+        glColor4fv(colour_s2);
+        glRect(v);
+        glColor4fv(colour_tx);
+        DrawWindow(gltext, raster[0],raster[1]);
     }
-    else if(can_edit) glRect(input_v);
-
-    std::string edit_visible = edit.substr(edit_visible_part[0], edit_visible_part[1]);
-    gledit = default_font().Text(edit_visible);
-
-    const int sl = (int)gledit.Width() + horizontal_margin;
-    const int rl = v.l + v.w - sl;
-
-    if( do_edit && sel[0] >= 0)
+    else
     {
-        const int tl = (int)(rl + default_font().Text(edit_visible.substr(0,sel[0] - edit_visible_part[0])).Width());
-        const int tr = (int)(rl + default_font().Text(edit_visible.substr(0,sel[1] - edit_visible_part[0])).Width());
-        glColor4fv(colour_dn);
-        glRect(Viewport(tl,input_v.b,tr-tl,input_v.h));
+        if(!do_edit) edit = var->Get();
+
+        Viewport input_v(v.l,v.b,v.w,v.h / 2);
+
+        glColor4fv(colour_fg);
+
+        if(can_edit) glRect(input_v);
+
+        std::string edit_visible = edit.substr(edit_visible_part[0], edit_visible_part[1]);
+        gledit = default_font().Text(edit_visible);
+
+        const int sl = (int)gledit.Width() + horizontal_margin;
+        const int rl = v.l + v.w - sl;
+
+        if( do_edit && sel[0] >= 0)
+        {
+            const int tl = (int)(rl + default_font().Text(edit_visible.substr(0,sel[0] - edit_visible_part[0])).Width());
+            const int tr = (int)(rl + default_font().Text(edit_visible.substr(0,sel[1] - edit_visible_part[0])).Width());
+            glColor4fv(colour_dn);
+            glRect(Viewport(tl,input_v.b,tr-tl,input_v.h));
+
+            glColor4fv(colour_tx);
+            GLfloat caret[4] = {(float) tr, (float) input_v.b, (float) tr, (float) input_v.b + input_v.h};
+            glLine(caret);
+        }
 
         glColor4fv(colour_tx);
-        GLfloat caret[4] = {(float) tr, (float) input_v.b, (float) tr, (float) input_v.b + input_v.h};
-        glLine(caret);
+
+        DrawWindow(gltext, v.l + horizontal_margin, v.b + gltext.Height() + 3.f * vertical_margin);
+
+        DrawWindow(gledit, (GLfloat)(rl), input_v.b + vertical_margin);
+        if(can_edit) DrawShadowRect(input_v);
     }
-    
-    if (is_title) glColor4fv(colour_s1);
-    else glColor4fv(colour_tx);
-
-    DrawWindow(gltext, v.l + horizontal_margin, v.b + gltext.Height() + 3.f * vertical_margin);
-
-    DrawWindow(gledit, (GLfloat)(rl), input_v.b + vertical_margin);
-    if(can_edit & !is_title) DrawShadowRect(input_v);
 }
 
 }
