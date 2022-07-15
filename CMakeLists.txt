@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project("Pangolin")
 set(PANGOLIN_VERSION_MAJOR 0)
-set(PANGOLIN_VERSION_MINOR 7)
+set(PANGOLIN_VERSION_MINOR 8)
 set(PANGOLIN_VERSION ${PANGOLIN_VERSION_MAJOR}.${PANGOLIN_VERSION_MINOR})
 
 if(NOT CMAKE_CXX_STANDARD)
@@ -23,6 +23,7 @@ include(PangolinFactory)
 
 option( BUILD_TOOLS "Build Tools" ON )
 option( BUILD_EXAMPLES "Build Examples" ON )
+option( BUILD_ASAN "Enable AddressSanitizer for Debug builds" OFF )
 
 # Default build type (Override with cmake .. -DCMAKE_BUILD_TYPE=...)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -62,10 +63,30 @@ else()
     option( BUILD_SHARED_LIBS "Build Shared Library" ON)
 endif()
 
+# run with "ASAN_OPTIONS=fast_unwind_on_malloc=0" to print stack with more details
+if(BUILD_ASAN)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} \
+        -fsanitize=address \
+        -fsanitize=bool \
+        -fsanitize=bounds \
+        -fsanitize=enum \
+        -fsanitize=float-cast-overflow \
+        -fsanitize=float-divide-by-zero \
+        -fsanitize=nonnull-attribute \
+        -fsanitize=returns-nonnull-attribute \
+        -fsanitize=signed-integer-overflow \
+        -fsanitize=undefined \
+        -fsanitize=vla-bound \
+        -fno-sanitize=alignment \
+        -fsanitize=leak \
+        -fsanitize=object-size \
+    ")
+endif()
+
 #######################################################
 ## Testing setup
 
-option( BUILD_TESTS "Build Tests" ON)
+option( BUILD_TESTS "Build Tests" OFF)
 find_package(Catch2 2 QUIET)
 if(Catch2_FOUND)
     include(CTest)

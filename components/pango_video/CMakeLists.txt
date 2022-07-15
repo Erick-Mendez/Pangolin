@@ -25,13 +25,14 @@ PRIVATE
     ${DRIVER_DIR}/merge.cpp
     ${DRIVER_DIR}/json.cpp
     ${DRIVER_DIR}/thread.cpp
+    ${DRIVER_DIR}/mjpeg.cpp
 )
 
 PangolinRegisterFactory(
     VideoInterface
     TestVideo ImagesVideo SplitVideo TruncateVideo PangoVideo
     DebayerVideo ShiftVideo TransformVideo UnpackVideo PackVideo
-    JoinVideo MergeVideo JsonVideo
+    JoinVideo MergeVideo JsonVideo MjpegVideo
 )
 
 PangolinRegisterFactory(
@@ -79,13 +80,14 @@ if(BUILD_PANGOLIN_FFMPEG)
       )
       target_link_libraries(${COMPONENT} PRIVATE ${FFMPEG_LIBRARIES} )
       target_include_directories(${COMPONENT} PRIVATE ${FFMPEG_INCLUDE_DIRS} )
+      PangolinRegisterFactory( VideoInterface FfmpegVideo)
       PangolinRegisterFactory( VideoInterface FfmpegVideo FfmpegVideoConvert)
       PangolinRegisterFactory( VideoOutputInterface FfmpegVideoOutput)
       if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         # FFMPEG is a real pain for deprecating the API.
         set_source_files_properties(${DRIVER_DIR}/ffmpeg.cpp  PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
       endif()
-      message(STATUS "ffmpeg Found and Enabled")
+      message(STATUS "ffmpeg Found and Enabled: ${FFMPEG_INCLUDE_DIRS}")
   endif()
 endif()
 
