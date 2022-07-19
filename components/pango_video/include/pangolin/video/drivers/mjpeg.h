@@ -1,7 +1,7 @@
 /* This file is part of the Pangolin Project.
  * http://github.com/stevenlovegrove/Pangolin
  *
- * Copyright (c) 2011 Steven Lovegrove
+ * Copyright (c) 2013 Steven Lovegrove
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,21 +28,22 @@
 #pragma once
 
 #include <pangolin/video/video_interface.h>
-#include <pangolin/video/iostream_operators.h>
-#include <pangolin/video/drivers/ffmpeg_common.h>
+#include <pangolin/image/typed_image.h>
+#include <fstream>
 
 namespace pangolin
 {
 
-class PANGOLIN_EXPORT FfmpegVideo : public VideoInterface, public VideoPlaybackInterface
+// Video class that outputs test video signal.
+class PANGOLIN_EXPORT MjpegVideo : public VideoInterface, public VideoPlaybackInterface
 {
 public:
-    FfmpegVideo(const std::string filename, const std::string fmtout = "RGB24", const std::string codec_hint = "", bool dump_info = false, int user_video_stream = -1, ImageDim size = ImageDim(0,0));
-    ~FfmpegVideo();
-    
+    MjpegVideo(const std::string& filename);
+    ~MjpegVideo();
+
     //! Implement VideoInput::Start()
     void Start() override;
-    
+
     //! Implement VideoInput::Stop()
     void Stop() override;
 
@@ -51,37 +52,26 @@ public:
 
     //! Implement VideoInput::Streams()
     const std::vector<StreamInfo>& Streams() const override;
-    
+
     //! Implement VideoInput::GrabNext()
     bool GrabNext( unsigned char* image, bool wait = true ) override;
-    
+
     //! Implement VideoInput::GrabNewest()
     bool GrabNewest( unsigned char* image, bool wait = true ) override;
-    
-    //! VideoPlaybackInterface methods
+
     size_t GetCurrentFrameId() const override;
     size_t GetTotalFrames() const override;
     size_t Seek(size_t frameid) override;
 
 protected:
-    void InitUrl(const std::string filename, const std::string fmtout = "RGB24", const std::string codec_hint = "", bool dump_info = false , int user_video_stream = -1, ImageDim size= ImageDim(0,0));
-    
+    bool LoadNext();
+
     std::vector<StreamInfo> streams;
-    
-    SwsContext      *img_convert_ctx;
-    AVFormatContext *pFormatCtx;
-    int             videoStream;
-    int64_t         numFrames;
-    int64_t         ptsPerFrame;
-    const AVCodec         *pVidCodec;
-    const AVCodec         *pAudCodec;
-    AVCodecContext *pCodecContext;
-    AVFrame         *pFrame;
-    AVFrame         *pFrameOut;
-    AVPacket        *packet;
-    int             numBytesOut;
-    AVPixelFormat     fmtout;
-    int64_t next_frame;
+    size_t size_bytes;
+    std::ifstream bFile;
+    TypedImage next_image;
+    std::vector<std::streampos> offsets;
+    size_t next_frame_id;
 };
 
 }

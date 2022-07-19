@@ -816,20 +816,20 @@ static void global_registry_handler(void *data, struct wl_registry *registry, ui
     WaylandDisplay* const w = static_cast<WaylandDisplay*>(data);
 
     if (strcmp(interface, wl_compositor_interface.name) == 0) {
-        w->wcompositor = reinterpret_cast<wl_compositor*> (wl_registry_bind(registry, id, &wl_compositor_interface, version));
+        w->wcompositor = reinterpret_cast<wl_compositor*> (wl_registry_bind(registry, id, &wl_compositor_interface, std::min<uint32_t>(version,4)));
     }
     else if (strcmp(interface, wl_subcompositor_interface.name) == 0) {
-        w->wsubcompositor = static_cast<wl_subcompositor*>(wl_registry_bind(registry, id, &wl_subcompositor_interface, version));
+        w->wsubcompositor = static_cast<wl_subcompositor*>(wl_registry_bind(registry, id, &wl_subcompositor_interface, std::min<uint32_t>(version,1)));
     }
     else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
-        w->xshell = reinterpret_cast<xdg_wm_base*> (wl_registry_bind(registry, id, &xdg_wm_base_interface, version));
+        w->xshell = reinterpret_cast<xdg_wm_base*> (wl_registry_bind(registry, id, &xdg_wm_base_interface, std::min<uint32_t>(version,3)));
     }
     else if (strcmp(interface, wl_seat_interface.name) == 0) {
-        w->wseat = reinterpret_cast<wl_seat*>(wl_registry_bind(registry, id, &wl_seat_interface, version));
+        w->wseat = reinterpret_cast<wl_seat*>(wl_registry_bind(registry, id, &wl_seat_interface, std::min<uint32_t>(version,5)));
         wl_seat_add_listener(w->wseat, &seat_listener, data);
     }
     else if (strcmp(interface, wl_shm_interface.name) == 0) {
-        w->shm = static_cast<wl_shm*>(wl_registry_bind(registry, id, &wl_shm_interface, version));
+        w->shm = static_cast<wl_shm*>(wl_registry_bind(registry, id, &wl_shm_interface, std::min<uint32_t>(version,1)));
         w->cursor_theme = wl_cursor_theme_load(nullptr, 16, w->shm);
     }
 }
@@ -1017,15 +1017,7 @@ void WaylandWindow::SwapBuffers() {
 std::unique_ptr<WindowInterface> CreateWaylandWindowAndBind(const std::string window_title, const int w, const int h, const std::string /*display_name*/, const bool /*double_buffered*/, const int /*sample_buffers*/, const int /*samples*/) {
 
     try{
-        std::unique_ptr<WaylandDisplay> newdisplay = std::make_unique<WaylandDisplay>();
-
-        // glewInit() fails with SIGSEGV for glew < 2.0 since it links to GLX
-        if(atoi((char*)glewGetString(GLEW_VERSION_MAJOR))<2)
-            return nullptr;
-
-        WaylandWindow* win = new WaylandWindow(w, h, window_title, std::move(newdisplay));
-
-        return std::unique_ptr<WindowInterface>(win);
+        return std::make_unique<WaylandWindow>(w, h, window_title, std::make_shared<WaylandDisplay>());
     }
     catch(const std::runtime_error&) {
         // return null pointer for fallback to X11

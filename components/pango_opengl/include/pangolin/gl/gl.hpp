@@ -33,6 +33,7 @@
 #include <pangolin/utils/type_convert.h>
 #include <algorithm>
 #include <stdexcept>
+#include <assert.h>
 
 namespace pangolin
 {
@@ -570,6 +571,14 @@ inline GlFramebuffer::~GlFramebuffer()
     if(fbid) {
         glDeleteFramebuffersEXT(1, &fbid);
     }
+}
+
+inline GlFramebuffer::GlFramebuffer(GlTexture& colour)
+    : attachments(0)
+{
+    glGenFramebuffersEXT(1, &fbid);
+    AttachColour(colour);
+    CheckGlDieOnError();
 }
 
 inline GlFramebuffer::GlFramebuffer(GlTexture& colour, GlRenderBuffer& depth)

@@ -16,6 +16,7 @@ extern "C"
 #include <libswscale/swscale.h>
 #include <libavutil/pixdesc.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
 
 // Some versions of FFMPEG define this horrid macro in global scope.
 #undef PixelFormat
@@ -94,9 +95,13 @@ inline std::string FfmpegFmtToString(const AVPixelFormat fmt)
     TEST_PIX_FMT_RETURN(BGR565LE);
     TEST_PIX_FMT_RETURN(BGR555BE);
     TEST_PIX_FMT_RETURN(BGR555LE);
+#if LIBAVFORMAT_VERSION_MAJOR >= 59
+    TEST_PIX_FMT_RETURN(VAAPI);
+#else
     TEST_PIX_FMT_RETURN(VAAPI_MOCO);
     TEST_PIX_FMT_RETURN(VAAPI_IDCT);
     TEST_PIX_FMT_RETURN(VAAPI_VLD);
+#endif
     TEST_PIX_FMT_RETURN(YUV420P16LE);
     TEST_PIX_FMT_RETURN(YUV420P16BE);
     TEST_PIX_FMT_RETURN(YUV422P16LE);
