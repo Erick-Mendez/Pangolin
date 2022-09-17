@@ -102,7 +102,7 @@ class PANGOLIN_EXPORT Plotter : public View, Handler
 {
 public:
 
-    /// Constructor without a colour provider. Defaults to a color wheel
+    /// Constructor without a colour provider. Defaults to a HSV color wheel
     Plotter(
         DataLog* default_log,
         float left = 0, float right = 600, float bottom = -1, float top = 1,

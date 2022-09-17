@@ -27,10 +27,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 namespace pangolin
 {
@@ -193,6 +195,42 @@ protected:
 };
 
 
+/// A simple Circular Buffer of colours
+class ColourCircularBuffer : public ColourProvider
+{
+public:
+    /// Adds a new color to the vector
+    void Add(const Colour& colour) {
+        colours.emplace_back(colour);
+        current_idx = colours.size() - 1;
+    }
+
+    /// Return colour for index
+    inline Colour GetColourBin(int i) const override
+    {
+        i = std::clamp(i, 0, static_cast<int>(colours.size()) - 1);
+        return colours[i];
+    }
+
+    /// Return next colour in the buffer
+    inline Colour GetNext() override
+    {
+        current_idx = (current_idx + 1) % colours.size();
+        return colours[current_idx];
+    }
+
+    /// Clear all added colours
+    inline void Reset() override {
+        colours.clear();
+        current_idx = 0;
+    }
+
+protected:
+    std::vector<Colour> colours;
+    size_t current_idx = 0;
+};
+
+
 /// A ColourWheel is like a continuous colour palate that can be sampled.
 class ColourWheel
 {
@@ -228,42 +266,6 @@ public:
 
 protected:
     std::unique_ptr<ColourProvider> colour_provider;
-};
-
-
-/// A simple Circular Buffer of colours
-class ColourCircularBuffer : public ColourProvider
-{
-public:
-    /// Adds a new color to the vector
-    void Add(const Colour& colour) {
-        colours.emplace_back(colour);
-        current_idx = colours.size() - 1;
-    }
-
-    /// Return colour for index
-    inline Colour GetColourBin(int i) const override
-    {
-        i = std::clamp(i, 0, static_cast<int>(colours.size())-1);
-        return colours[i];
-    }
-
-    /// Return next colour in the buffer
-    inline Colour GetNext() override
-    {
-        current_idx = (current_idx + 1) % colours.size();
-        return colours[current_idx];
-    }
-
-    /// Clear all added colours
-    inline void Reset() override {
-        colours.clear();
-        current_idx = 0;
-    }
-
-protected:
-    std::vector<Colour> colours;
-    size_t current_idx = 0;
 };
 
 }
