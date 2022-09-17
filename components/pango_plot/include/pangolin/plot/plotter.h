@@ -102,7 +102,7 @@ class PANGOLIN_EXPORT Plotter : public View, Handler
 {
 public:
 
-    /// Constructor without a colour provider. Defaults to a color wheel
+    /// Constructor without a colour provider. Defaults to a HSV color wheel
     Plotter(
         DataLog* default_log,
         float left = 0, float right = 600, float bottom = -1, float top = 1,
@@ -114,7 +114,7 @@ public:
     /// Constructor that allows the passing of a colour provider
     Plotter(
         DataLog* default_log,
-        std::unique_ptr<ColourProvider>&& colour_prov,
+        ColourWheel&& colour_wheel,
         float left=0, float right=600, float bottom=-1, float top=1,
         float tickx=30, float ticky=0.5,
         Plotter* linked_plotter_x = 0,
@@ -192,14 +192,8 @@ public:
     void ClearImplicitPlots();
     void AddImplicitPlot();
 
-    /// Reset colour provider to initial state. May be useful together with ClearSeries() / ClearMarkers()
-    void ResetColourProvider();
-
-    /// Alias for ResetColourProvider for API compatibility.
-    void ResetColourWheel()
-    {
-        ResetColourProvider();
-    }
+    /// Reset colour wheel to initial state. May be useful together with ClearSeries() / ClearMarkers()
+    void ResetColourWheel();
 
     void ShowHoverLines(bool show)
     {
@@ -267,7 +261,7 @@ protected:
 
     DataLog* default_log;
 
-    std::unique_ptr<ColourProvider> colour_provider;
+    ColourWheel colour_wheel;
     Colour colour_bg;
     Colour colour_tk;
     Colour colour_ax;

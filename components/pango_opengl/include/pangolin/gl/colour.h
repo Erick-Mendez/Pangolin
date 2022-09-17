@@ -27,9 +27,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
 namespace pangolin
 {
@@ -139,9 +142,8 @@ struct Colour
 class ColourProvider
 {
 public:
-    /// Adds a colour to this provider. Some providers that generate colours
-    /// might not need to implement this (e.g. ColourWheel)
-    virtual void Add(const Colour& /*colour*/) {};
+    /// Get colour for a given index.
+    virtual Colour GetColourBin(int i) const = 0;
 
     /// Get next colour. In the case of generation it would create a new one.
     virtual Colour GetNext() = 0;
@@ -154,21 +156,19 @@ public:
 };
 
 /// A ColourWheel is like a continuous colour palate that can be sampled.
-/// In the future, different ColourWheels will be supported, but this one
-/// is based on sampling hues in HSV colourspace. An indefinite number of
-/// unique colours are sampled using the golden angle.
-class ColourWheel : public ColourProvider
+/// This one is based on sampling hues in HSV colourspace. An indefinite
+/// number of unique colours are sampled using the golden angle.
+class HSVColourWheel : public ColourProvider
 {
 public:
     /// Construct ColourWheel with Saturation, Value and Alpha constant.
-    inline ColourWheel(float saturation = 0.5f, float value = 1.0f, float alpha = 1.0f)
+    inline HSVColourWheel(float saturation = 0.5f, float value = 1.0f, float alpha = 1.0f)
         : unique_colours(0), sat(saturation), val(value), alpha(alpha)
     {
-
     }
 
     /// Use Golden ratio (/angle) to pick well spaced colours.
-    inline Colour GetColourBin(int i) const
+    inline Colour GetColourBin(int i) const override
     {
         float hue = i * 0.5f * (3.0f - sqrt(5.0f));
         hue -= (int)hue;
@@ -176,20 +176,15 @@ public:
     }
 
     /// Return next unique colour from ColourWheel.
-    inline Colour GetUniqueColour()
+    inline Colour GetNext() override
     {
         return GetColourBin(unique_colours++);
     }
 
-    /// Return next unique colour from ColourWheel for ColorProvider.
-    inline Colour GetNext() override
-    {
-        return GetUniqueColour();
-    }
-
     /// Reset colour wheel counter to initial state
-    inline void Reset() override {
-      unique_colours = 0;
+    inline void Reset() override
+    {
+        unique_colours = 0;
     }
 
 protected:
@@ -199,14 +194,22 @@ protected:
     float alpha;
 };
 
+
 /// A simple Circular Buffer of colours
 class ColourCircularBuffer : public ColourProvider
 {
 public:
     /// Adds a new color to the vector
-    virtual void Add(const Colour& colour) override {
+    void Add(const Colour& colour) {
         colours.emplace_back(colour);
         current_idx = colours.size() - 1;
+    }
+
+    /// Return colour for index
+    inline Colour GetColourBin(int i) const override
+    {
+        i = std::clamp(i, 0, static_cast<int>(colours.size()) - 1);
+        return colours[i];
     }
 
     /// Return next colour in the buffer
@@ -225,6 +228,44 @@ public:
 protected:
     std::vector<Colour> colours;
     size_t current_idx = 0;
+};
+
+
+/// A ColourWheel is like a continuous colour palate that can be sampled.
+class ColourWheel
+{
+public:
+    /// Construct ColourWheel using HSVColourWheel with Saturation, Value and Alpha constant.
+    inline ColourWheel(float saturation = 0.5f, float value = 1.0f, float alpha = 1.0f)
+        : colour_provider(std::make_unique<HSVColourWheel>(saturation,value, alpha))
+    {
+    }
+
+    /// Construct ColourWheel with a given colour provider.
+    inline ColourWheel(std::unique_ptr<ColourProvider>&& colour_provider)
+        : colour_provider(std::move(colour_provider))
+    {
+    }
+
+    /// Use Golden ratio (/angle) to pick well spaced colours.
+    inline Colour GetColourBin(int i) const
+    {
+        return colour_provider->GetColourBin(i);
+    }
+
+    /// Return next unique colour from ColourWheel.
+    inline Colour GetUniqueColour()
+    {
+        return colour_provider->GetNext();
+    }
+
+    /// Reset colour wheel counter to initial state
+    inline void Reset() {
+      colour_provider->Reset();
+    }
+
+protected:
+    std::unique_ptr<ColourProvider> colour_provider;
 };
 
 }
