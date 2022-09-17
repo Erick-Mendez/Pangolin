@@ -18,11 +18,11 @@ int main(/*int argc, char* argv[]*/)
 
   const float tinc = 0.01f;
 
-  const bool use_wheel = true; /// By default we use a ColourWheel provider
+  const bool use_hsv_wheel = true; /// By default we use a HSV ColourWheel provider
 
   // OpenGL 'view' of data. We might have many views of the same data.
   pangolin::Plotter plotter = [&](){
-    if (use_wheel) {
+    if (use_hsv_wheel) {
       return pangolin::Plotter(&log, 0.0f,4.0f*(float)M_PI/tinc,-2.0f,2.0f,(float)M_PI/(4.0f*tinc),0.5f);
     }
     else {
