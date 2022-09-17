@@ -203,7 +203,7 @@ Plotter::Plotter(
     Plotter* linked_plotter_x,
     Plotter* linked_plotter_y
 )   : Plotter(log,
-      std::make_unique<pangolin::ColourWheel>(0.6),
+      ColourWheel(0.6),
       left,right,bottom,top,
       tickx, ticky,
       linked_plotter_x, linked_plotter_y)
@@ -212,13 +212,13 @@ Plotter::Plotter(
 
 Plotter::Plotter(
     DataLog* log,
-    std::unique_ptr<ColourProvider>&& colour_prov,
+    ColourWheel&& colour_wheel,
     float left, float right, float bottom, float top,
     float tickx, float ticky,
     Plotter* linked_plotter_x,
     Plotter* linked_plotter_y
 )   : default_log(log),
-      colour_provider(std::move(colour_prov)),
+      colour_wheel(std::move(colour_wheel)),
       rview_default(left,right,bottom,top), rview(rview_default), target(rview),
       selection(0,0,0,0),
       track(false), track_x("$i"), track_y(""),
@@ -1128,7 +1128,7 @@ void Plotter::AddSeries(const std::string& x_expr, const std::string& y_expr,
     const std::string& title, DataLog *log)
 {
     if( !std::isfinite(colour.r) ) {
-        colour = colour_provider->GetNext();
+        colour = colour_wheel.GetUniqueColour();
     }
     plotseries.push_back( PlotSeries() );
     plotseries.back().CreatePlot(x_expr, y_expr, colour, (title == "$y") ? PlotTitleFromExpr(y_expr) : title);
@@ -1181,9 +1181,9 @@ void Plotter::ClearMarkers()
     plotmarkers.clear();
 }
 
-void Plotter::ResetColourProvider()
+void Plotter::ResetColourWheel()
 {
-    colour_provider->Reset();
+    colour_wheel.Reset();
 }
 
 }
