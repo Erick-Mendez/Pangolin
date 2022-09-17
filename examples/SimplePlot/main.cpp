@@ -18,21 +18,21 @@ int main(/*int argc, char* argv[]*/)
 
   const float tinc = 0.01f;
 
-  std::unique_ptr<pangolin::ColourProvider> colours;
-  bool use_wheel = true; /// By default we use a ColourWheel provider
+  const bool use_wheel = true; /// By default we use a ColourWheel provider
 
-  if (use_wheel) {
-      colours = std::make_unique<pangolin::ColourWheel>(0.6);
-  }
-  else {
-      colours = std::make_unique<pangolin::ColourCircularBuffer>();
+  // OpenGL 'view' of data. We might have many views of the same data.
+  pangolin::Plotter plotter = [&](){
+    if (use_wheel) {
+      return pangolin::Plotter(&log, 0.0f,4.0f*(float)M_PI/tinc,-2.0f,2.0f,(float)M_PI/(4.0f*tinc),0.5f);
+    }
+    else {
+      auto colours = std::make_unique<pangolin::ColourCircularBuffer>();
       colours->Add(pangolin::Colour::Green().WithAlpha(0.3f));
       colours->Add(pangolin::Colour::Green().WithAlpha(0.6f));
       colours->Add(pangolin::Colour::Green().WithAlpha(0.9f));
-  }
-
-  // OpenGL 'view' of data. We might have many views of the same data.
-  pangolin::Plotter plotter(&log, std::move(colours), 0.0f,4.0f*(float)M_PI/tinc,-2.0f,2.0f,(float)M_PI/(4.0f*tinc),0.5f);
+      return pangolin::Plotter(&log, pangolin::ColourWheel(std::move(colours)), 0.0f,4.0f*(float)M_PI/tinc,-2.0f,2.0f,(float)M_PI/(4.0f*tinc),0.5f);
+    }
+  }();
   plotter.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotter.Track("$i");
 
